@@ -9,19 +9,14 @@ class Popover {
     this.handleActivation = this.handleActivation.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
 
+    this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
+
     deactivateCover.addEventListener('click', this.handleActivation);
 
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
     this.activator.addEventListener('click', this.handleActivation);
 
     window.addEventListener('resize', this._resizePopover); // needs throttle/requestAnimationFrame
-
-    // make this less garbage
-    const activatorStats = this._elementPosition(this.activator);
-    const activatorWidth = activatorStats.right - activatorStats.left;
-    if (this.node.hasAttribute('data-constrain-width')) {
-      this.node.style['max-width'] = `${activatorWidth}px`;
-    }
 
     // clean up listeners
   }
@@ -41,7 +36,7 @@ class Popover {
   }
 
   activatePopover() {
-    this._positionPopover(this._elementPosition(this.activator), this._elementPosition(this.node));
+    this._positionPopover();
     deactivateCover.setAttribute('data-popover-active', 'true');
     this.node.removeAttribute('data-hidden');
     this.activated = true;
@@ -53,20 +48,28 @@ class Popover {
   }
 
   _resizePopover() {
-    window.requestAnimationFrame(() => {
-      this._positionPopover(this._elementPosition(this.activator), this._elementPosition(this.node));
-    });
+    if (this.activated) {
+      window.requestAnimationFrame(() => {
+        this._positionPopover(this._elementPosition(this.activator), this._elementPosition(this.node));
+      });
+    }
   }
 
-  _positionPopover(activatorPosition, popoverPosition) {
+  _positionPopover() { // this is getting long, should break it up
+    const activatorPosition = this._elementPosition(this.activator);
     const activatorWidth = activatorPosition.right - activatorPosition.left;
     const activatorHeight = activatorPosition.bottom - activatorPosition.top;
+
+    if (this.constrainedWidth) {
+      this.node.style['max-width'] = `${activatorWidth}px`; // can't set this here
+    }
+
+    const popoverPosition = this._elementPosition(this.node);
     const popoverWidth = popoverPosition.right - popoverPosition.left;
-    const popoverHeight = popoverPosition.bottom - popoverPosition.top;
+    const popoverHeight = popoverPosition.bottom - popoverPosition.top; // will probably need in if enough room check
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
-    console.log(this.activated);
     const activatorCentered = ((activatorPosition.left + (activatorWidth / 2)) - ((popoverWidth * popoverScale) / 2));
-    
+
     if (activatorCentered > 0) {
       this.node.style.left = `${activatorCentered}px`;
     } else {
