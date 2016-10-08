@@ -63,8 +63,10 @@ class Popover {
     const activatorHeight = activatorPosition.bottom - activatorPosition.top;
     const popoverWidth = popoverPosition.right - popoverPosition.left;
     const popoverHeight = popoverPosition.bottom - popoverPosition.top;
-
-    const activatorCentered = ((activatorPosition.left + (activatorWidth / 2)) - ((popoverWidth * SCALE_POPOVER_BY) / 2));
+    const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
+    console.log(this.activated);
+    const activatorCentered = ((activatorPosition.left + (activatorWidth / 2)) - ((popoverWidth * popoverScale) / 2));
+    
     if (activatorCentered > 0) {
       this.node.style.left = `${activatorCentered}px`;
     } else {
