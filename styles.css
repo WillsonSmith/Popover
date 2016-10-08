@@ -16,7 +16,7 @@
   border-radius: 3px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
   position: absolute;
-  transition: transform 0.05s ease-in, opacity 0.05s ease-in;
+  transition: transform 70ms ease-in, opacity 70ms ease-in;
   transform: scale(1) translateY(0);
   opacity: 1;
 
@@ -37,6 +37,17 @@
 }
 
 /*TMP*/
+
+body {
+  font-family: -apple-system, "BlinkMacSystemFont", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: 16px;
+}
+
+.cont {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .popover-activator-container {
   width: 100px;
   margin: 0 auto;
@@ -48,5 +59,12 @@
 .list {
   list-style-type: none;
   margin: 0;
+  padding: 0;
+}
+
+.list li {
   padding: 16px;
+}
+.list li + li {
+  border-top: 1px solid rgb(230,230,230); 
 }
