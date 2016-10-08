@@ -44,7 +44,14 @@ class Popover {
 
   _elementPosition(node) {
     const {top, right, bottom, left} = node.getBoundingClientRect();
-    return {top, right, bottom, left};
+    return {
+      top,
+      right,
+      bottom,
+      left,
+      width: right - left,
+      height: bottom - top,
+    };
   }
 
   _resizePopover() {
@@ -55,26 +62,22 @@ class Popover {
     }
   }
 
-  _positionPopover() { // this is getting long, should break it up
+  _positionPopover() {
     const activatorPosition = this._elementPosition(this.activator);
-    const activatorWidth = activatorPosition.right - activatorPosition.left;
-    const activatorHeight = activatorPosition.bottom - activatorPosition.top;
-    if (this.constrainedWidth) { // would checking if width has change be better?
-      this.node.style['max-width'] = `${activatorWidth}px`;
+    if (this.constrainedWidth) {
+      this.node.style['max-width'] = `${activatorPosition.width}px`;
     }
-    this.node.style.left = 0; // this allows for proper popover width calculation on device rotation
+    this.node.style.left = 0; // this calculates proper width on device rotation
     const popoverPosition = this._elementPosition(this.node);
-    const popoverWidth = popoverPosition.right - popoverPosition.left;
-    const popoverHeight = popoverPosition.bottom - popoverPosition.top; // will need in if enough room check
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
-    const activatorCentered = ((activatorPosition.left + (activatorWidth / 2)) - ((popoverWidth * popoverScale) / 2));
+    const activatorCentered = ((activatorPosition.left + (activatorPosition.width / 2)) - ((popoverPosition.width * popoverScale) / 2));
 
     if (activatorCentered > 0) {
       this.node.style.left = `${activatorCentered}px`;
     } else {
       this.node.style.left = `${SPACING}px`;
     }
-    this.node.style.top = `${activatorPosition.top + activatorHeight + SPACING}px`;
+    this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING}px`;
     this.node.classList.add('popover--bottom-shadow'); // should be set based on position, use another method
   }
 }
