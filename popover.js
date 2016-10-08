@@ -1,4 +1,5 @@
 const SPACING = 16;
+const SCALE_POPOVER_BY = 1.05; // 5% because transform: scale(0.95);
 const deactivateCover = document.getElementById('popover-deactivate-cover');
 
 class Popover {
@@ -63,7 +64,7 @@ class Popover {
     const popoverWidth = popoverPosition.right - popoverPosition.left;
     const popoverHeight = popoverPosition.bottom - popoverPosition.top;
 
-    const activatorCentered = (activatorPosition.left + (activatorWidth / 2)) - (popoverWidth / 2);
+    const activatorCentered = ((activatorPosition.left + (activatorWidth / 2)) - ((popoverWidth * SCALE_POPOVER_BY) / 2));
     if (activatorCentered > 0) {
       this.node.style.left = `${activatorCentered}px`;
     } else {

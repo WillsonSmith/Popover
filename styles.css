@@ -24,8 +24,7 @@
 }
 
 .popover[data-hidden=true] {
-  /*transform: scale(0.95) translateY(-4px);*/
-  transform: translateY(-4px);
+  transform: scale(0.95) translateY(-4px);
   opacity: 0;
 }
 
