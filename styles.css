@@ -24,7 +24,8 @@
 }
 
 .popover[data-hidden=true] {
-  transform: scale(0.95) translateY(-4px);
+  /*transform: scale(0.95) translateY(-4px);*/
+  transform: translateY(-4px);
   opacity: 0;
 }
 
@@ -53,7 +54,16 @@ body {
   margin: 0 auto;
 }
 .popover-activator {
-  width: 100px;
+  background: rgb(90, 100, 210);
+  border: none;
+  width: 250px;
+  height: 50px; 
+  font-size: 16px;
+  color: #fff;
+}
+
+.popover-activator:active {
+  box-shadow: inset 0 8px 16px rgba(0,0,0, 0.2);
 }
 
 .list {

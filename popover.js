@@ -15,6 +15,13 @@ class Popover {
 
     window.addEventListener('resize', this._resizePopover); // needs throttle/requestAnimationFrame
 
+    // make this less garbage
+    const activatorStats = this._elementPosition(this.activator);
+    const activatorWidth = activatorStats.right - activatorStats.left;
+    if (this.node.hasAttribute('data-constrain-width')) {
+      this.node.style['max-width'] = `${activatorWidth}px`;
+    }
+
     // clean up listeners
   }
 
