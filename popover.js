@@ -8,16 +8,12 @@ class Popover {
     this.activated = false;
     this.handleActivation = this.handleActivation.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
-
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
+    this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
 
     deactivateCover.addEventListener('click', this.handleActivation);
-
-    this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
     this.activator.addEventListener('click', this.handleActivation);
-
     window.addEventListener('resize', this._resizePopover);
-
     // clean up listeners
   }
 
@@ -64,20 +60,32 @@ class Popover {
 
   _positionPopover() {
     const activatorPosition = this._elementPosition(this.activator);
+    const activatorCenter = (activatorPosition.left + (activatorPosition.width / 2));
     if (this.constrainedWidth) {
       this.node.style['max-width'] = `${activatorPosition.width}px`;
     }
     this.node.style.left = 0; // this calculates proper width on device rotation
     const popoverPosition = this._elementPosition(this.node);
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
-    const activatorCentered = ((activatorPosition.left + (activatorPosition.width / 2)) - ((popoverPosition.width * popoverScale) / 2));
+    const popoverCenter = ((popoverPosition.width * popoverScale) / 2)
 
-    if (activatorCentered > 0) {
-      this.node.style.left = `${activatorCentered}px`;
-    } else {
-      this.node.style.left = `${SPACING}px`;
-    }
+    this._calculateLeftRight(activatorPosition, activatorCenter, popoverCenter);
+
     this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING}px`;
     this.node.classList.add('popover--bottom-shadow'); // should be set based on position, use another method
+  }
+
+  _calculateLeftRight(activator, activatorCenter, popoverCenter) {
+    const windowWidth = window.innerWidth;
+    const activatorCentered = activatorCenter - popoverCenter;
+    if (activatorCentered > 0) {
+      this.node.style.left = `${activatorCentered}px`;
+    }
+    if (activatorCenter + popoverCenter > windowWidth) {
+      this.node.style.right = `${windowWidth - activator.right}px`;
+    }
+    if (activatorCentered < 0) {
+      this.node.style.left = `${activator.left}px`;
+    }
   }
 }
