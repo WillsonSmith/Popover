@@ -26,6 +26,7 @@
 .popover[data-hidden=true] {
   transform: scale(0.95) translateY(-4px);
   opacity: 0;
+  left: -200vw;
 }
 
 .popover--top-shadow {

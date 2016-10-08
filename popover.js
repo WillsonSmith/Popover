@@ -7,11 +7,12 @@ class Popover {
     this.node = node;
     this.activated = false;
     this.handleActivation = this.handleActivation.bind(this);
+    this.deactivatePopover = this.deactivatePopover.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
 
-    deactivateCover.addEventListener('click', this.handleActivation);
+    deactivateCover.addEventListener('click', this.deactivatePopover);
     this.activator.addEventListener('click', this.handleActivation);
     window.addEventListener('resize', this._resizePopover);
     // clean up listeners
@@ -28,6 +29,7 @@ class Popover {
   deactivatePopover() {
     deactivateCover.removeAttribute('data-popover-active');
     this.node.setAttribute('data-hidden', 'true');
+    this.node.removeAttribute('style');
     this.activated = false;
   }
 
@@ -64,7 +66,8 @@ class Popover {
     if (this.constrainedWidth) {
       this.node.style['max-width'] = `${activatorPosition.width}px`;
     }
-    this.node.style.left = 0; // this calculates proper width on device rotation
+    this.node.style.left = null; // this calculates proper width on device rotation
+    this.node.style.right = null;
     const popoverPosition = this._elementPosition(this.node);
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
     const popoverCenter = ((popoverPosition.width * popoverScale) / 2)
@@ -78,6 +81,9 @@ class Popover {
   _calculateLeftRight(activator, activatorCenter, popoverCenter) {
     const windowWidth = window.innerWidth;
     const activatorCentered = activatorCenter - popoverCenter;
+    const tooFarLeft = (activatorCentered > 0);
+    const tooFarRight = (activatorCenter + popoverCenter > windowWidth);
+
     if (activatorCentered > 0) {
       this.node.style.left = `${activatorCentered}px`;
     }
