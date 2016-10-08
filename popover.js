@@ -16,7 +16,7 @@ class Popover {
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
     this.activator.addEventListener('click', this.handleActivation);
 
-    window.addEventListener('resize', this._resizePopover); // needs throttle/requestAnimationFrame
+    window.addEventListener('resize', this._resizePopover);
 
     // clean up listeners
   }
@@ -60,13 +60,13 @@ class Popover {
     const activatorWidth = activatorPosition.right - activatorPosition.left;
     const activatorHeight = activatorPosition.bottom - activatorPosition.top;
 
-    if (this.constrainedWidth) {
-      this.node.style['max-width'] = `${activatorWidth}px`; // can't set this here
+    if (this.constrainedWidth) { // would checking if width has change be better?
+      this.node.style['max-width'] = `${activatorWidth}px`;
     }
 
     const popoverPosition = this._elementPosition(this.node);
     const popoverWidth = popoverPosition.right - popoverPosition.left;
-    const popoverHeight = popoverPosition.bottom - popoverPosition.top; // will probably need in if enough room check
+    const popoverHeight = popoverPosition.bottom - popoverPosition.top; // will need in if enough room check
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
     const activatorCentered = ((activatorPosition.left + (activatorWidth / 2)) - ((popoverWidth * popoverScale) / 2));
 
