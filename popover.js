@@ -74,7 +74,7 @@ class Popover {
 
     this._calculateLeftRight(activatorPosition, activatorCenter, popoverCenter);
 
-    this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING}px`;
+    this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING + window.scrollY}px`;
     this.node.classList.add('popover--bottom-shadow'); // should be set based on position, use another method
   }
 
