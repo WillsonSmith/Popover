@@ -50,7 +50,7 @@ class Popover {
   _resizePopover() {
     if (this.activated) {
       window.requestAnimationFrame(() => {
-        this._positionPopover(this._elementPosition(this.activator), this._elementPosition(this.node));
+        this._positionPopover();
       });
     }
   }
@@ -59,11 +59,10 @@ class Popover {
     const activatorPosition = this._elementPosition(this.activator);
     const activatorWidth = activatorPosition.right - activatorPosition.left;
     const activatorHeight = activatorPosition.bottom - activatorPosition.top;
-
     if (this.constrainedWidth) { // would checking if width has change be better?
       this.node.style['max-width'] = `${activatorWidth}px`;
     }
-
+    this.node.style.left = 0; // this allows for proper popover width calculation on device rotation
     const popoverPosition = this._elementPosition(this.node);
     const popoverWidth = popoverPosition.right - popoverPosition.left;
     const popoverHeight = popoverPosition.bottom - popoverPosition.top; // will need in if enough room check
@@ -75,7 +74,6 @@ class Popover {
     } else {
       this.node.style.left = `${SPACING}px`;
     }
-
     this.node.style.top = `${activatorPosition.top + activatorHeight + SPACING}px`;
     this.node.classList.add('popover--bottom-shadow'); // should be set based on position, use another method
   }
