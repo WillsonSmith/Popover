@@ -27,6 +27,7 @@
   transform: scale(0.95) translateY(-4px);
   opacity: 0;
   left: -200vw;
+  pointer-events: none;
 }
 
 .popover--top-shadow {
