@@ -8,16 +8,17 @@ class Popover {
     this.handleActivation = this.handleActivation.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
 
-    console.log(deactivateCover);
     deactivateCover.addEventListener('click', this.handleActivation);
 
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
     this.activator.addEventListener('click', this.handleActivation);
 
     window.addEventListener('resize', this._resizePopover); // needs throttle/requestAnimationFrame
+
+    // clean up listeners
   }
 
-  handleActivation(e) {
+  handleActivation() {
     if (this.activated) {
       this.deactivatePopover();
     } else {
