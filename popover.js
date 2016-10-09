@@ -5,6 +5,7 @@ const deactivateCover = document.getElementById('popover-deactivate-cover');
 class Popover {
   constructor(node) {
     this.node = node;
+    this.contents = node.querySelector('.popover-contents');
     this.activated = false;
     this.handleActivation = this.handleActivation.bind(this);
     this.deactivatePopover = this.deactivatePopover.bind(this);
@@ -41,7 +42,12 @@ class Popover {
   }
 
   _elementPosition(node) {
-    const {top, right, bottom, left} = node.getBoundingClientRect();
+    const clientRect = node.getBoundingClientRect();
+    let {top, bottom} = clientRect;
+    const {right, left} = clientRect;
+    const scrollPosition = window.pageYOffset;
+    top += scrollPosition;
+    bottom += scrollPosition;
     return {
       top,
       right,
@@ -68,14 +74,27 @@ class Popover {
     }
     this.node.style.left = null; // this calculates proper width on device rotation
     this.node.style.right = null;
+    this.node.style.height = null;
     const popoverPosition = this._elementPosition(this.node);
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
     const popoverCenter = ((popoverPosition.width * popoverScale) / 2)
 
+    // can probably avoid this calc if constrained width
     this._calculateLeftRight(activatorPosition, activatorCenter, popoverCenter);
+    this._calculateHeight(activatorPosition.bottom, popoverPosition.height);
 
-    this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING + window.scrollY}px`;
+    this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING}px`;
     this.node.classList.add('popover--bottom-shadow'); // should be set based on position, use another method
+  }
+
+  _calculateHeight(activatorBottom) {
+    const windowHeight = window.innerHeight;
+    const contentsHeight = this._elementPosition(this.contents).height;
+    // spacing * 2 because of top spacing
+    const availableHeight = windowHeight - activatorBottom - (SPACING * 2);
+    if (availableHeight - contentsHeight < 0) {
+      this.node.style.height = `${availableHeight}px`;
+    }
   }
 
   _calculateLeftRight(activator, activatorCenter, popoverCenter) {
