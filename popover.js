@@ -103,10 +103,10 @@ class Popover {
     const tooFarLeft = (activatorCentered > 0);
     const tooFarRight = (activatorCenter + popoverCenter > windowWidth);
 
-    if (activatorCentered > 0) {
+    if (tooFarLeft) {
       this.node.style.left = `${activatorCentered}px`;
     }
-    if (activatorCenter + popoverCenter > windowWidth) {
+    if (tooFarRight) {
       this.node.style.right = `${windowWidth - activator.right}px`;
     }
     if (activatorCentered < 0) {

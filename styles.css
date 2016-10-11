@@ -23,6 +23,7 @@
 
   max-width: 95%;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .popover[data-hidden=true] {
