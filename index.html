@@ -27,7 +27,7 @@
 
   <div class="popover-holder">
     <div class="popover-deactivate-cover" id="popover-deactivate-cover"></div>
-    <div class="popover" data-hidden="true" id="popover-selector">
+    <div class="popover" data-hidden="true" id="popover-selector" tabindex="0">
     <!--<div class="popover" data-constrain-width data-hidden="true" id="popover-selector">-->
       <div class="popover-contents"> <!-- scrolls -->
         <ul class="list">
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class="popover" data-hidden="true" id="popover-secondary">
+    <div class="popover" data-hidden="true" id="popover-secondary" tabindex="0">
     <!--<div class="popover" data-constrain-width data-hidden="true" id="popover-selector">-->
       <div class="popover-contents"> <!-- scrolls -->
         <ul class="list">
@@ -63,9 +63,44 @@
   </div>
 <script type="text/javascript" src="./lib/popover.js"></script>
 <script type="text/javascript">
+
+  const FOCUSABLE_ELEMENTS = [
+    'a[href]',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'button:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable]',
+    'iframe',
+  ].join(', ');
+
+  function elementVisible(element) {
+    // Checking getClientRects is needed because of a Chrome bug where it will
+    // incorrectly report an offsetHeight and offsetWidth of 0 on anchor tags
+    return Boolean(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+  }
+
+  function elementFocusable(element) {
+    return (!element.disabled && elementVisible(element));
+  }
+
+  function findAll(container) {
+    const focusableElements = container.querySelectorAll(FOCUSABLE_ELEMENTS);
+    return Array.from(focusableElements).filter(elementFocusable);
+  }
+
+  const popoverIds = Array.from(document.getElementsByClassName('popover-activator')).map(function(activator) {
+    return activator.getAttribute('data-popover-activator-for');
+  });
+
+  const focusableElements = findAll(document.body).filter(function(element) {
+    return !popoverIds.includes(element.id);
+  });
+
   const popovers = Array.from(document.getElementsByClassName('popover-activator')).map(function(activator) {
     const popoverElement = document.getElementById(activator.getAttribute('data-popover-activator-for'));
-    return new popover.default(popoverElement);
+    return new popover.default(popoverElement, focusableElements);
   });
 </script>
 </body>

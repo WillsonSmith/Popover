@@ -3,7 +3,7 @@ const SCALE_POPOVER_BY = 1.05; // 5% because transform: scale(0.95);
 const deactivateCover = document.getElementById('popover-deactivate-cover');
 
 export default class Popover {
-  constructor(node) {
+  constructor(node, focusableElements) {
     this.node = node;
     this.contents = node.querySelector('.popover-contents');
     this.activated = false;
@@ -14,14 +14,19 @@ export default class Popover {
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
 
-    this.node.setAttribute('tabindex', '0');
+    this.activator.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.node));
 
-    // this.activator.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.node));
-    // this.node.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.activator.parentNode.nextElementSibling));
-    // this.activator.addEventListener('focus', this.activatePopover);
-    // this.activator.addEventListener('click', () => { this.activator.focus(); });
+    this.node.addEventListener('keydown', (evt) => {
+      evt.preventDefault();
+      const activatorIndex = focusableElements.indexOf(this.activator);
+      const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
+      focusableElements[nextIndex].focus();
+    });
+    this.activator.addEventListener('focus', this.activatePopover);
+    this.activator.addEventListener('click', () => { this.activator.focus(); });
 
-    this.activator.addEventListener('click', this.handleActivation);
+    this.node.addEventListener('blur', this.deactivatePopover);
+
     deactivateCover.addEventListener('click', this.deactivatePopover);
     window.addEventListener('resize', this._resizePopover);
     // clean up listeners
