@@ -4,17 +4,29 @@
   "description": "",
   "main": "popover.js",
   "dependencies": {
-    "eslint": "^3.7.1"
+    "babel-core": "6.7.7",
+    "babel-preset-shopify": "10.1.0"
   },
   "devDependencies": {
-    "eslint": "^3.7.1",
-    "eslint-config-standard": "^6.2.0",
-    "eslint-plugin-promise": "^3.0.0",
-    "eslint-plugin-shopify": "^14.0.2",
-    "eslint-plugin-standard": "^2.0.1"
+    "babel-loader": "^6.2.5",
+    "eslint": "^3.3.1",
+    "eslint-loader": "^1.5.0",
+    "eslint-plugin-shopify": "^14.0.0",
+    "webpack": "^1.13.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "WEBPACK_ENV=build webpack",
+    "dev": "WEBPACK_ENV=dev webpack --progress --colors --watch",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "eslintConfig": {
+    "extends": "plugin:shopify/esnext",
+    "env": { }
+  },
+  "babel": {
+    "presets": [
+      "shopify"
+    ]
   },
   "author": "= <=> (https://willsonsmith.com)",
   "license": "ISC"

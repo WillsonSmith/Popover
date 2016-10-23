@@ -2,19 +2,27 @@ const SPACING = 16;
 const SCALE_POPOVER_BY = 1.05; // 5% because transform: scale(0.95);
 const deactivateCover = document.getElementById('popover-deactivate-cover');
 
-class Popover {
+export default class Popover {
   constructor(node) {
     this.node = node;
     this.contents = node.querySelector('.popover-contents');
     this.activated = false;
     this.handleActivation = this.handleActivation.bind(this);
+    this.activatePopover = this.activatePopover.bind(this);
     this.deactivatePopover = this.deactivatePopover.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
 
-    deactivateCover.addEventListener('click', this.deactivatePopover);
+    this.node.setAttribute('tabindex', '0');
+
+    // this.activator.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.node));
+    // this.node.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.activator.parentNode.nextElementSibling));
+    // this.activator.addEventListener('focus', this.activatePopover);
+    // this.activator.addEventListener('click', () => { this.activator.focus(); });
+
     this.activator.addEventListener('click', this.handleActivation);
+    deactivateCover.addEventListener('click', this.deactivatePopover);
     window.addEventListener('resize', this._resizePopover);
     // clean up listeners
   }
@@ -39,6 +47,17 @@ class Popover {
     deactivateCover.setAttribute('data-popover-active', 'true');
     this.node.removeAttribute('data-hidden');
     this.activated = true;
+  }
+
+  _tabEventHandler(evt, focusNode) {
+    if (!this.activated) {
+      return;
+    }
+    evt.preventDefault();
+
+    if (evt.keyCode === 9) {
+      focusNode.focus();
+    }
   }
 
   _elementPosition(node) {
@@ -77,7 +96,7 @@ class Popover {
     this.node.style.height = null;
     const popoverPosition = this._elementPosition(this.node);
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
-    const popoverCenter = ((popoverPosition.width * popoverScale) / 2)
+    const popoverCenter = ((popoverPosition.width * popoverScale) / 2);
 
     // can probably avoid this calc if constrained width
     this._calculateLeftRight(activatorPosition, activatorCenter, popoverCenter);
