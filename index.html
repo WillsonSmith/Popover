@@ -62,7 +62,7 @@
     </div>
   </div>
 <script type="text/javascript" src="./lib/popover.js"></script>
-<script type="text/javascript">
+  <script type="text/javascript">
 
   const FOCUSABLE_ELEMENTS = [
     'a[href]',
@@ -95,7 +95,8 @@
   });
 
   const focusableElements = findAll(document.body).filter(function(element) {
-    return !popoverIds.includes(element.id);
+    return !popoverIds.includes(element.id); // might want to include these and handle the filter in popover
+    // yeah that's probably what will have to happen
   });
 
   const popovers = Array.from(document.getElementsByClassName('popover-activator')).map(function(activator) {

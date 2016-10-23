@@ -7,6 +7,9 @@ export default class Popover {
     this.node = node;
     this.contents = node.querySelector('.popover-contents');
     this.activated = false;
+
+    this.shiftDown = false;
+
     this.handleActivation = this.handleActivation.bind(this);
     this.activatePopover = this.activatePopover.bind(this);
     this.deactivatePopover = this.deactivatePopover.bind(this);
@@ -16,12 +19,32 @@ export default class Popover {
 
     this.activator.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.node));
 
+    document.addEventListener('keydown', (evt) => {
+      if (evt.keyCode === 16) {
+        this.shiftDown = true;
+      }
+    });
+
+    document.addEventListener('keyup', (evt) => {
+      if (evt.keyCode === 16) {
+        this.shiftDown = false;
+      }
+    });
+
     this.node.addEventListener('keydown', (evt) => {
       evt.preventDefault();
-      const activatorIndex = focusableElements.indexOf(this.activator);
-      const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
-      focusableElements[nextIndex].focus();
+
+      if (evt.keyCode === 9 && !this.shiftDown) {
+        const activatorIndex = focusableElements.indexOf(this.activator);
+        const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
+        focusableElements[nextIndex].focus();
+      }
+
+      if (evt.keyCode === 9 && this.shiftDown) {
+        this.activator.focus();
+      }
     });
+
     this.activator.addEventListener('focus', this.activatePopover);
     this.activator.addEventListener('click', () => { this.activator.focus(); });
 
@@ -60,7 +83,7 @@ export default class Popover {
     }
     evt.preventDefault();
 
-    if (evt.keyCode === 9) {
+    if (evt.keyCode === 9 && !this.shiftDown) {
       focusNode.focus();
     }
   }
