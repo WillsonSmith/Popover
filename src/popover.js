@@ -9,7 +9,7 @@ function nextTabElement(index, items) {
   return items[index + 1 <= items.length - 1 ? index + 1 : 0];
 }
 
-function prevTabelement(index, items) {
+function prevTabElement(index, items) {
   return items[index - 1 >= 0 ? index - 1 : items.length - 1];
 }
 
@@ -20,21 +20,15 @@ export default class Popover {
     this.activated = false;
 
     this.shiftDown = false;
+
     this.focusableElements = function(container) {
       const containerElement = container || document.body;
       return focusableFunction(containerElement)
         .filter((element) => !popoverIds.includes(element.id));
     };
 
-    this.handleActivation = this.handleActivation.bind(this);
-    this.activatePopover = this.activatePopover.bind(this);
-    this.deactivatePopover = this.deactivatePopover.bind(this);
-    this._blurEventHandler = this._blurEventHandler.bind(this);
-    this._resizePopover = this._resizePopover.bind(this);
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
-
-    this.activator.addEventListener('keydown', (evt) => this._tabEventHandler(evt, this.node));
 
     document.addEventListener('keydown', (evt) => {
       if (evt.keyCode === 16) {
@@ -48,53 +42,16 @@ export default class Popover {
       }
     });
 
-    this.node.addEventListener('keydown', (evt) => {
-      evt.preventDefault();
-      const popoverFocusable = this.focusableElements(this.node);
-      const focusableElements = this.focusableElements()
-        .filter((element) => !popoverHoler.contains(element));
-      const focusedIndex = popoverFocusable.indexOf(document.activeElement);
+    this.node.addEventListener('keydown', this._popoverTabHandler.bind(this));
+    this.node.addEventListener('blur', this._blurEventHandler.bind(this));
 
-      if (evt.keyCode === 9 && !this.shiftDown) {
-        if (focusedIndex < popoverFocusable.length - 1) {
-          popoverFocusable[focusedIndex + 1].focus();
-        }
-
-        if (focusedIndex === popoverFocusable.length - 1) {
-          nextTabElement(focusableElements.indexOf(this.activator), focusableElements).focus();
-          this.deactivatePopover();
-        }
-      }
-
-      if (evt.keyCode === 9 && this.shiftDown) {
-        if (focusedIndex > 0) {
-          popoverFocusable[focusedIndex - 1].focus();
-        }
-        if (focusedIndex === 0) {
-          this.node.focus();
-        }
-        if (focusedIndex < 0) {
-          this.activator.focus();
-        }
-      }
-    });
-
-    this.activator.addEventListener('focus', this.activatePopover);
+    this.activator.addEventListener('focus', this.activatePopover.bind(this));
     this.activator.addEventListener('click', () => { this.activator.focus(); });
+    this.activator.addEventListener('keydown', this._activatorTabHandler.bind(this));
 
-    this.node.addEventListener('blur', this._blurEventHandler);
-
-    deactivateCover.addEventListener('click', this.deactivatePopover);
-    window.addEventListener('resize', this._resizePopover);
+    deactivateCover.addEventListener('click', this.deactivatePopover.bind(this));
+    window.addEventListener('resize', this._resizePopover.bind(this));
     // clean up listeners
-  }
-
-  handleActivation() {
-    if (this.activated) {
-      this.deactivatePopover();
-    } else {
-      this.activatePopover();
-    }
   }
 
   deactivatePopover() {
@@ -119,20 +76,50 @@ export default class Popover {
     this.deactivatePopover();
   }
 
-  _tabEventHandler(evt, focusNode) {
+  _popoverTabHandler(evt) {
+    evt.preventDefault();
+    const popoverFocusable = this.focusableElements(this.node);
+    const focusableElements = this.focusableElements()
+      .filter((element) => !popoverHoler.contains(element));
+    const focusedIndex = popoverFocusable.indexOf(document.activeElement);
+
+    if (evt.keyCode === 9 && !this.shiftDown) {
+      if (focusedIndex < popoverFocusable.length - 1) {
+        popoverFocusable[focusedIndex + 1].focus();
+      }
+
+      if (focusedIndex === popoverFocusable.length - 1) {
+        nextTabElement(focusableElements.indexOf(this.activator), focusableElements).focus();
+        this.deactivatePopover();
+      }
+    }
+
+    if (evt.keyCode === 9 && this.shiftDown) {
+      if (focusedIndex > 0) {
+        popoverFocusable[focusedIndex - 1].focus();
+      }
+      if (focusedIndex === 0) {
+        this.node.focus();
+      }
+      if (focusedIndex < 0) {
+        this.activator.focus();
+      }
+    }
+  }
+
+  _activatorTabHandler(evt) {
     if (!this.activated) { return; }
     evt.preventDefault();
     const popoverFocusable = this.focusableElements(this.node);
     const focusableElements = this.focusableElements().filter((element) => !popoverFocusable.includes(element));
 
     if (evt.keyCode === 9 && !this.shiftDown) {
-      focusNode.focus();
+      this.node.focus();
     }
     if (evt.keyCode === 9 && this.shiftDown) {
       const activatorIndex = focusableElements.indexOf(this.activator);
-      const prevIndex = activatorIndex - 1 >= 0 ? activatorIndex - 1 : focusableElements.length - 1;
+      prevTabElement(activatorIndex, focusableElements).focus();
       this.deactivatePopover();
-      focusableElements[prevIndex].focus();
     }
   }
 
