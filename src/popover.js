@@ -19,7 +19,8 @@ export default class Popover {
 
     this.handleActivation = this.handleActivation.bind(this);
     this.activatePopover = this.activatePopover.bind(this);
-    this.deactivatePopover = this.deactivatePopover.bind(this);
+    // this.deactivatePopover = this.deactivatePopover.bind(this);
+    this._blurEventHandler = this._blurEventHandler.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
@@ -51,6 +52,7 @@ export default class Popover {
 
         if (focusedIndex === popoverFocusable.length - 1) {
           focusableElements[focusableElements.indexOf(this.activator) + 1].focus();
+          this.deactivatePopover();
         }
       }
 
@@ -59,6 +61,9 @@ export default class Popover {
           popoverFocusable[focusedIndex - 1].focus();
         }
         if (focusedIndex === 0) {
+          this.node.focus();
+        }
+        if (focusedIndex < 0) {
           this.activator.focus();
         }
       }
@@ -67,7 +72,8 @@ export default class Popover {
     this.activator.addEventListener('focus', this.activatePopover);
     this.activator.addEventListener('click', () => { this.activator.focus(); });
 
-    // this.node.addEventListener('blur', this.deactivatePopover);
+    this.node.addEventListener('blur', this._blurEventHandler);
+    // can use blur - use node.contains to see if tabbing to something inside popover
 
     deactivateCover.addEventListener('click', this.deactivatePopover);
     window.addEventListener('resize', this._resizePopover);
@@ -95,6 +101,13 @@ export default class Popover {
     deactivateCover.setAttribute('data-popover-active', 'true');
     this.node.removeAttribute('data-hidden');
     this.activated = true;
+  }
+
+  _blurEventHandler(evt) {
+    if (this.node.contains(evt.relatedTarget) || evt.relatedTarget === this.activator) {
+      return;
+    }
+    this.deactivatePopover();
   }
 
   _tabEventHandler(evt, focusNode) {
