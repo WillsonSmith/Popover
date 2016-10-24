@@ -28,6 +28,7 @@ export default class Popover {
 
     this.handleActivation = this.handleActivation.bind(this);
     this.activatePopover = this.activatePopover.bind(this);
+    this.deactivatePopover = this.deactivatePopover.bind(this);
     this._blurEventHandler = this._blurEventHandler.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
