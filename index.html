@@ -95,8 +95,7 @@
   });
 
   const focusableElements = findAll(document.body).filter(function(element) {
-    return !popoverIds.includes(element.id); // might want to include these and handle the filter in popover
-    // yeah that's probably what will have to happen
+    return !popoverIds.includes(element.id);
   });
 
   const popovers = Array.from(document.getElementsByClassName('popover-activator')).map(function(activator) {

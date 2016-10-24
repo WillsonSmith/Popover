@@ -9,6 +9,7 @@ export default class Popover {
     this.activated = false;
 
     this.shiftDown = false;
+    this.focusableElements = focusableElements;
 
     this.handleActivation = this.handleActivation.bind(this);
     this.activatePopover = this.activatePopover.bind(this);
@@ -34,6 +35,7 @@ export default class Popover {
     this.node.addEventListener('keydown', (evt) => {
       evt.preventDefault();
 
+      // need to tab into popover as well.
       if (evt.keyCode === 9 && !this.shiftDown) {
         const activatorIndex = focusableElements.indexOf(this.activator);
         const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
@@ -71,10 +73,12 @@ export default class Popover {
   }
 
   activatePopover() {
-    this._positionPopover();
-    deactivateCover.setAttribute('data-popover-active', 'true');
-    this.node.removeAttribute('data-hidden');
-    this.activated = true;
+    if (!this.activated) {
+      this._positionPopover();
+      deactivateCover.setAttribute('data-popover-active', 'true');
+      this.node.removeAttribute('data-hidden');
+      this.activated = true;
+    }
   }
 
   _tabEventHandler(evt, focusNode) {
@@ -85,6 +89,12 @@ export default class Popover {
 
     if (evt.keyCode === 9 && !this.shiftDown) {
       focusNode.focus();
+    }
+    if (evt.keyCode === 9 && this.shiftDown) {
+      const activatorIndex = this.focusableElements.indexOf(this.activator);
+      const prevIndex = activatorIndex - 1 >= 0 ? activatorIndex - 1 : this.focusableElements.length - 1;
+      this.deactivatePopover();
+      this.focusableElements[prevIndex].focus();
     }
   }
 
