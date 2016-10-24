@@ -1,15 +1,24 @@
 const SPACING = 16;
 const SCALE_POPOVER_BY = 1.05; // 5% because transform: scale(0.95);
 const deactivateCover = document.getElementById('popover-deactivate-cover');
+const popoverIds = Array.from(document.getElementsByClassName('popover-activator'))
+  .map(function(activator) {
+    return activator.getAttribute('data-popover-activator-for');
+  });
 
 export default class Popover {
-  constructor(node, focusableElements) {
+  constructor(node, focusableFunction) {
     this.node = node;
     this.contents = node.querySelector('.popover-contents');
     this.activated = false;
 
     this.shiftDown = false;
-    this.focusableElements = focusableElements;
+    this.focusableElements = function() {
+      return focusableFunction(document.body)
+        .filter(function(element) {
+          return !popoverIds.includes(element.id);
+        });
+    };
 
     this.handleActivation = this.handleActivation.bind(this);
     this.activatePopover = this.activatePopover.bind(this);
@@ -34,11 +43,12 @@ export default class Popover {
 
     this.node.addEventListener('keydown', (evt) => {
       evt.preventDefault();
-
-      // need to tab into popover as well.
+      const focusableElements = this.focusableElements();
+      // need to tab into popover as well. - will need dynamic check for tabbing?
       if (evt.keyCode === 9 && !this.shiftDown) {
         const activatorIndex = focusableElements.indexOf(this.activator);
         const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
+        // don't want to do this - need to tab into popover
         focusableElements[nextIndex].focus();
       }
 
@@ -86,15 +96,15 @@ export default class Popover {
       return;
     }
     evt.preventDefault();
-
+    const focusableElements = this.focusableElements();
     if (evt.keyCode === 9 && !this.shiftDown) {
       focusNode.focus();
     }
     if (evt.keyCode === 9 && this.shiftDown) {
-      const activatorIndex = this.focusableElements.indexOf(this.activator);
-      const prevIndex = activatorIndex - 1 >= 0 ? activatorIndex - 1 : this.focusableElements.length - 1;
+      const activatorIndex = focusableElements.indexOf(this.activator);
+      const prevIndex = activatorIndex - 1 >= 0 ? activatorIndex - 1 : focusableElements.length - 1;
       this.deactivatePopover();
-      this.focusableElements[prevIndex].focus();
+      focusableElements[prevIndex].focus();
     }
   }
 
