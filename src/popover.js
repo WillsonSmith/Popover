@@ -1,10 +1,17 @@
 const SPACING = 16;
 const SCALE_POPOVER_BY = 1.05; // 5% because transform: scale(0.95);
+const popoverHoler = document.querySelector('.popover-holder');
 const deactivateCover = document.getElementById('popover-deactivate-cover');
 const popoverIds = Array.from(document.getElementsByClassName('popover-activator'))
-  .map(function(activator) {
-    return activator.getAttribute('data-popover-activator-for');
-  });
+  .map((activator) => activator.getAttribute('data-popover-activator-for'));
+
+function nextTabElement(index, items) {
+  return items[index + 1 <= items.length - 1 ? index + 1 : 0];
+}
+
+function prevTabelement(index, items) {
+  return items[index - 1 >= 0 ? index - 1 : items.length - 1];
+}
 
 export default class Popover {
   constructor(node, focusableFunction) {
@@ -13,16 +20,15 @@ export default class Popover {
     this.activated = false;
 
     this.shiftDown = false;
-    this.focusableElements = function() {
-      return focusableFunction(document.body)
-        .filter(function(element) {
-          return !popoverIds.includes(element.id);
-        });
+    this.focusableElements = function(container) {
+      const containerElement = container || document.body;
+      return focusableFunction(containerElement)
+        .filter((element) => !popoverIds.includes(element.id));
     };
 
     this.handleActivation = this.handleActivation.bind(this);
     this.activatePopover = this.activatePopover.bind(this);
-    this.deactivatePopover = this.deactivatePopover.bind(this);
+    this._blurEventHandler = this._blurEventHandler.bind(this);
     this._resizePopover = this._resizePopover.bind(this);
     this.constrainedWidth = this.node.hasAttribute('data-constrain-width');
     this.activator = document.querySelector(`[data-popover-activator-for="${node.id}"]`);
@@ -43,24 +49,39 @@ export default class Popover {
 
     this.node.addEventListener('keydown', (evt) => {
       evt.preventDefault();
-      const focusableElements = this.focusableElements();
-      // need to tab into popover as well. - will need dynamic check for tabbing?
+      const popoverFocusable = this.focusableElements(this.node);
+      const focusableElements = this.focusableElements()
+        .filter((element) => !popoverHoler.contains(element));
+      const focusedIndex = popoverFocusable.indexOf(document.activeElement);
+
       if (evt.keyCode === 9 && !this.shiftDown) {
-        const activatorIndex = focusableElements.indexOf(this.activator);
-        const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
-        // don't want to do this - need to tab into popover
-        focusableElements[nextIndex].focus();
+        if (focusedIndex < popoverFocusable.length - 1) {
+          popoverFocusable[focusedIndex + 1].focus();
+        }
+
+        if (focusedIndex === popoverFocusable.length - 1) {
+          nextTabElement(focusableElements.indexOf(this.activator), focusableElements).focus();
+          this.deactivatePopover();
+        }
       }
 
       if (evt.keyCode === 9 && this.shiftDown) {
-        this.activator.focus();
+        if (focusedIndex > 0) {
+          popoverFocusable[focusedIndex - 1].focus();
+        }
+        if (focusedIndex === 0) {
+          this.node.focus();
+        }
+        if (focusedIndex < 0) {
+          this.activator.focus();
+        }
       }
     });
 
     this.activator.addEventListener('focus', this.activatePopover);
     this.activator.addEventListener('click', () => { this.activator.focus(); });
 
-    this.node.addEventListener('blur', this.deactivatePopover);
+    this.node.addEventListener('blur', this._blurEventHandler);
 
     deactivateCover.addEventListener('click', this.deactivatePopover);
     window.addEventListener('resize', this._resizePopover);
@@ -83,20 +104,26 @@ export default class Popover {
   }
 
   activatePopover() {
-    if (!this.activated) {
-      this._positionPopover();
-      deactivateCover.setAttribute('data-popover-active', 'true');
-      this.node.removeAttribute('data-hidden');
-      this.activated = true;
+    if (this.activated) { return; }
+    this._positionPopover();
+    deactivateCover.setAttribute('data-popover-active', 'true');
+    this.node.removeAttribute('data-hidden');
+    this.activated = true;
+  }
+
+  _blurEventHandler(evt) {
+    if (this.node.contains(evt.relatedTarget) || evt.relatedTarget === this.activator) {
+      return;
     }
+    this.deactivatePopover();
   }
 
   _tabEventHandler(evt, focusNode) {
-    if (!this.activated) {
-      return;
-    }
+    if (!this.activated) { return; }
     evt.preventDefault();
-    const focusableElements = this.focusableElements();
+    const popoverFocusable = this.focusableElements(this.node);
+    const focusableElements = this.focusableElements().filter((element) => !popoverFocusable.includes(element));
+
     if (evt.keyCode === 9 && !this.shiftDown) {
       focusNode.focus();
     }
