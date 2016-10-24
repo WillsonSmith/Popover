@@ -11,8 +11,9 @@ export default class Popover {
     this.activated = false;
 
     this.shiftDown = false;
-    this.focusableElements = function() {
-      return focusableFunction(document.body)
+    this.focusableElements = function(container) {
+      const containerElement = container || document.body;
+      return focusableFunction(containerElement)
         .filter((element) => !popoverIds.includes(element.id));
     };
 
@@ -39,24 +40,34 @@ export default class Popover {
 
     this.node.addEventListener('keydown', (evt) => {
       evt.preventDefault();
-      const focusableElements = this.focusableElements();
-      // need to tab into popover as well. - will need dynamic check for tabbing?
+      const popoverFocusable = this.focusableElements(this.node);
+      const focusableElements = this.focusableElements().filter((element) => !popoverFocusable.includes(element));
+      const focusedIndex = popoverFocusable.indexOf(document.activeElement);
+
       if (evt.keyCode === 9 && !this.shiftDown) {
-        const activatorIndex = focusableElements.indexOf(this.activator);
-        const nextIndex = activatorIndex + 1 <= focusableElements.length - 1 ? activatorIndex + 1 : 0;
-        // don't want to do this - need to tab into popover
-        focusableElements[nextIndex].focus();
+        if (focusedIndex < popoverFocusable.length - 1) {
+          popoverFocusable[focusedIndex + 1].focus();
+        }
+
+        if (focusedIndex === popoverFocusable.length - 1) {
+          focusableElements[focusableElements.indexOf(this.activator) + 1].focus();
+        }
       }
 
       if (evt.keyCode === 9 && this.shiftDown) {
-        this.activator.focus();
+        if (focusedIndex > 0) {
+          popoverFocusable[focusedIndex - 1].focus();
+        }
+        if (focusedIndex === 0) {
+          this.activator.focus();
+        }
       }
     });
 
     this.activator.addEventListener('focus', this.activatePopover);
     this.activator.addEventListener('click', () => { this.activator.focus(); });
 
-    this.node.addEventListener('blur', this.deactivatePopover);
+    // this.node.addEventListener('blur', this.deactivatePopover);
 
     deactivateCover.addEventListener('click', this.deactivatePopover);
     window.addEventListener('resize', this._resizePopover);
@@ -89,7 +100,9 @@ export default class Popover {
   _tabEventHandler(evt, focusNode) {
     if (!this.activated) { return; }
     evt.preventDefault();
-    const focusableElements = this.focusableElements();
+    const popoverFocusable = this.focusableElements(this.node);
+    const focusableElements = this.focusableElements().filter((element) => !popoverFocusable.includes(element));
+
     if (evt.keyCode === 9 && !this.shiftDown) {
       focusNode.focus();
     }
