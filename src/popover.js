@@ -79,18 +79,15 @@ export default class Popover {
   }
 
   activatePopover() {
-    if (!this.activated) {
-      this._positionPopover();
-      deactivateCover.setAttribute('data-popover-active', 'true');
-      this.node.removeAttribute('data-hidden');
-      this.activated = true;
-    }
+    if (this.activated) { return; }
+    this._positionPopover();
+    deactivateCover.setAttribute('data-popover-active', 'true');
+    this.node.removeAttribute('data-hidden');
+    this.activated = true;
   }
 
   _tabEventHandler(evt, focusNode) {
-    if (!this.activated) {
-      return;
-    }
+    if (!this.activated) { return; }
     evt.preventDefault();
     const focusableElements = this.focusableElements();
     if (evt.keyCode === 9 && !this.shiftDown) {
