@@ -100,7 +100,7 @@
 
   const popovers = Array.from(document.getElementsByClassName('popover-activator')).map(function(activator) {
     const popoverElement = document.getElementById(activator.getAttribute('data-popover-activator-for'));
-    return new popover.default(popoverElement, focusableElements);
+    return new popover.default(popoverElement, findAll);
   });
 </script>
 </body>
