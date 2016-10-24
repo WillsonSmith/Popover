@@ -2,9 +2,7 @@ const SPACING = 16;
 const SCALE_POPOVER_BY = 1.05; // 5% because transform: scale(0.95);
 const deactivateCover = document.getElementById('popover-deactivate-cover');
 const popoverIds = Array.from(document.getElementsByClassName('popover-activator'))
-  .map(function(activator) {
-    return activator.getAttribute('data-popover-activator-for');
-  });
+  .map((activator) => activator.getAttribute('data-popover-activator-for'));
 
 export default class Popover {
   constructor(node, focusableFunction) {
@@ -15,9 +13,7 @@ export default class Popover {
     this.shiftDown = false;
     this.focusableElements = function() {
       return focusableFunction(document.body)
-        .filter(function(element) {
-          return !popoverIds.includes(element.id);
-        });
+        .filter((element) => !popoverIds.includes(element.id));
     };
 
     this.handleActivation = this.handleActivation.bind(this);
