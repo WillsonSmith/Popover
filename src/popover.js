@@ -89,8 +89,8 @@ export default class Popover {
       }
 
       if (focusedIndex === popoverFocusable.length - 1) {
-        nextTabElement(focusableElements.indexOf(this.activator), focusableElements).focus();
         this.deactivatePopover();
+        nextTabElement(focusableElements.indexOf(this.activator), focusableElements).focus();
       }
     }
 
@@ -160,22 +160,53 @@ export default class Popover {
     const popoverPosition = this._elementPosition(this.node);
     const popoverScale = this.activated ? 1 : SCALE_POPOVER_BY;
     const popoverCenter = ((popoverPosition.width * popoverScale) / 2);
+    const popoverOnBottom = this._popoverOnBottom();
 
-    // can probably avoid this calc if constrained width
     this._calculateLeftRight(activatorPosition, activatorCenter, popoverCenter);
-    this._calculateHeight(activatorPosition.bottom, popoverPosition.height);
-
-    this.node.style.top = `${activatorPosition.top + activatorPosition.height + SPACING}px`;
-    this.node.classList.add('popover--bottom-shadow'); // should be set based on position, use another method
+    this._setClasses(popoverOnBottom);
+    this.node.style.height = this._calculateHeight(activatorPosition, popoverOnBottom);
+    this.node.style.top = this._calculateTopPosition(activatorPosition);
   }
 
-  _calculateHeight(activatorBottom) {
+  _popoverOnBottom() {
     const windowHeight = window.innerHeight;
+    const {top, bottom} = this._elementPosition(this.activator);
+    return windowHeight - bottom > top;
+  }
+
+  _setClasses(popoverOnBottom) {
+    this.node.classList.remove('popover--bottom-shadow', 'popover--top-shadow');
+    if (popoverOnBottom) {
+      this.node.classList.add('popover--bottom-shadow');
+      return;
+    }
+    this.node.classList.add('popover--top-shadow');
+  }
+
+  _calculateTopPosition(activatorPosition) {
+    const popoverOnBottom = this._popoverOnBottom();
+    if (popoverOnBottom) {
+      return `${activatorPosition.top + activatorPosition.height + SPACING}px`;
+    }
+    return `${SPACING}px`;
+  }
+
+  _calculateHeight(activatorPosition, popoverOnBottom) {
     const contentsHeight = this._elementPosition(this.contents).height;
-    // spacing * 2 because of top spacing
-    const availableHeight = windowHeight - activatorBottom - (SPACING * 2);
-    if (availableHeight - contentsHeight < 0) {
-      this.node.style.height = `${availableHeight}px`;
+
+    if (popoverOnBottom) {
+      const windowHeight = window.innerHeight;
+      const availableHeight = windowHeight - activatorPosition.bottom - (SPACING * 2);
+      if (availableHeight - contentsHeight < 0) {
+        return `${availableHeight}px`;
+      }
+    }
+
+    if (!popoverOnBottom) {
+      const availableHeight = activatorPosition.top - (SPACING * 2); 
+      if (contentsHeight > availableHeight) {
+        return `${availableHeight}px`;
+      }
     }
   }
 
