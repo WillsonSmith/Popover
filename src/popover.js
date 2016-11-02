@@ -45,8 +45,9 @@ export default class Popover {
     this.node.addEventListener('keydown', this._popoverTabHandler.bind(this));
     this.node.addEventListener('blur', this._blurEventHandler.bind(this));
 
-    this.activator.addEventListener('focus', this.activatePopover.bind(this));
-    this.activator.addEventListener('click', () => { this.activator.focus(); });
+    // this.activator.addEventListener('focus', this.activatePopover.bind(this));
+    this.activator.addEventListener('click', () => { window.location.href = `#${this.activator.getAttribute('data-popover-activator-for')}` });
+    this.node.addEventListener('focus', this.activatePopover.bind(this));
     this.activator.addEventListener('keydown', this._activatorTabHandler.bind(this));
 
     deactivateCover.addEventListener('click', this.deactivatePopover.bind(this));
